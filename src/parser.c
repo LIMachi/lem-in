@@ -6,7 +6,7 @@
 /*   By: hmartzol <hmartzol@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/25 04:10:31 by hmartzol          #+#    #+#             */
-/*   Updated: 2018/01/25 05:22:07 by hmartzol         ###   ########.fr       */
+/*   Updated: 2018/01/25 05:42:51 by hmartzol         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,9 @@ void				parser(t_env_lem_in *env)
 	last_line = 0;
 	while (get_next_line(env->fd, &line) > 0)
 	{
-		if (*line == 'L' || *line == '\0')
+		if (*line == '\n')
+			continue ;
+		else if (*line == 'L' || *line == '\0')
 			break ;
 		else if (*line == '#')
 			if (!ft_strcmp(line + 1, "#start"))
