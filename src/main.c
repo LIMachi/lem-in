@@ -6,7 +6,7 @@
 /*   By: hmartzol <hmartzol@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/21 18:44:54 by hmartzol          #+#    #+#             */
-/*   Updated: 2018/01/25 05:22:40 by hmartzol         ###   ########.fr       */
+/*   Updated: 2018/01/25 05:36:38 by hmartzol         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,5 +43,5 @@ int					main(int argc, char **argv)
 
 	read_opts(argc, argv, &env);
 	parser(&env);
-	debug(&env);
+	printer(&env);
 }
