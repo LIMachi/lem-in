@@ -6,7 +6,7 @@
 /*   By: hmartzol <hmartzol@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/26 01:27:37 by hmartzol          #+#    #+#             */
-/*   Updated: 2018/01/26 02:37:59 by hmartzol         ###   ########.fr       */
+/*   Updated: 2018/01/26 06:05:46 by hmartzol         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,16 +33,90 @@ static int				recursive_fill(t_room *room, int depth)
 	return (max_depth);
 }
 
+static inline void		clean_rooms(t_env_lem_in *env)
+{
+	size_t	i;
+	t_llist	*lltmp;
+
+	i = -1;
+	while (++i < env->table.size)
+		if ((lltmp = env->table.data[i]))
+			while (lltmp)
+			{
+				((t_room*)lltmp->data)->passes = 0;
+				lltmp = lltmp->next;
+			}
+}
+
+static inline t_llist	*initial_room(t_env_lem_in *env, int *d)
+{
+	t_room	*tmp;
+	t_link	*link;
+	t_llist	*out;
+
+	clean_rooms(env);
+	*d = recursive_fill(env->start->data, 0);
+	link = ((t_room*)env->end->data)->links;
+	out = NULL;
+	while (link)
+	{
+		if (*d >= (tmp = (t_room*)link->target->data)->passes &&
+			!(tmp->flags & BLACKLIST))
+		{
+			*d = tmp->passes;
+			out = link->target;
+		}
+		link = link->next;
+	}
+	if (out)
+		((t_room*)out->data)->flags |= BLACKLIST;
+	if (!*d)
+		error(21, env, "no valid path from '%s' to '%s' was found\n",
+			env->start->label, env->end->label);
+	++*d;
+	return (out);
+}
+
 static inline t_path	*extract_path(t_env_lem_in *env)
 {
-	int	d;
+	int		d;
+	t_llist	*room;
+	t_path	*out;
+	t_link	*link;
 
-	d = recursive_fill(env->start->data, 0);
-	ft_printf("depth: %d\n", d);
-	return (NULL);
+	if ((room = initial_room(env, &d)) == NULL)
+		return (NULL);
+	if (((out = ft_malloc(sizeof(t_path))) == NULL) ||
+		((out->labels = ft_malloc(sizeof(char*) * d)) == NULL) ||
+		((out->ants = ft_memalloc(sizeof(int*) * d)) == NULL))
+		error(20, env, "failed to alocate paths\n");
+	*out = (t_path){.length = d--, .labels = out->labels, .ants = out->ants,
+		.next = NULL};
+	out->labels[d - 1] = room->label;
+	while (--d > 1)
+	{
+		link = ((t_room*)room->data)->links;
+		while (link && ((t_room*)link->target->data)->passes != d)
+			link = link->next;
+		out->labels[d - 1] = link->target->label;
+		room = link->target;
+		((t_room*)room->data)->flags |= BLACKLIST;
+	}
+	out->labels[0] = env->start->label;
+	return (out);
 }
 
 inline void				bfs(t_env_lem_in *env)
 {
-	(void)extract_path(env);
+	t_path	*path;
+
+	while ((path = extract_path(env)))
+	{
+		path->next = env->path;
+		path->labels[path->length - 1] = env->end->label;
+		env->path = path;
+	}
+	if (!env->path)
+		error(21, env, "no valid path from '%s' to '%s' was found\n",
+			env->start->label, env->end->label);
 }

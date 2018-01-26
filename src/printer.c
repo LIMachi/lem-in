@@ -6,7 +6,7 @@
 /*   By: hmartzol <hmartzol@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/25 05:26:54 by hmartzol          #+#    #+#             */
-/*   Updated: 2018/01/26 03:29:36 by hmartzol         ###   ########.fr       */
+/*   Updated: 2018/01/26 06:07:44 by hmartzol         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,22 @@ inline void			printer(t_env_lem_in *env)
 				lltmp = lltmp->next;
 			}
 	printer0(env);
+}
+
+inline void			print_paths_found(t_env_lem_in *env)
+{
+	t_path	*path;
+	size_t	i;
+
+	path = env->path;
+	while (path)
+	{
+		i = -1;
+		while (++i < path->length - 1)
+			ft_printf("'%s'->", path->labels[i]);
+		ft_printf("'%s'\n", path->labels[i]);
+		path = path->next;
+	}
 }
 
 /*

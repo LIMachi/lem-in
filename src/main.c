@@ -6,7 +6,7 @@
 /*   By: hmartzol <hmartzol@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/21 18:44:54 by hmartzol          #+#    #+#             */
-/*   Updated: 2018/01/26 03:30:46 by hmartzol         ###   ########.fr       */
+/*   Updated: 2018/01/26 06:08:02 by hmartzol         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,8 @@ int					main(int argc, char **argv)
 	read_opts(argc, argv, &env);
 	parser(&env);
 	bfs(&env);
-	// printer(&env);
-	debug(&env);
+	printer(&env);
+	if (env.verbose)
+		print_paths_found(&env);
+	print_path_usage(&env);
 }

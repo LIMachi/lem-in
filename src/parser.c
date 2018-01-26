@@ -6,7 +6,7 @@
 /*   By: hmartzol <hmartzol@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/25 04:01:31 by hmartzol          #+#    #+#             */
-/*   Updated: 2018/01/26 03:18:47 by hmartzol         ###   ########.fr       */
+/*   Updated: 2018/01/26 06:16:16 by hmartzol         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,7 @@ inline static void	new_link(t_env_lem_in *e, char *l, char *t)
 inline static int	init(t_env_lem_in *env, char **line)
 {
 	*line = NULL;
-	if ((env->table = ft_hashtable(256, NULL)).data == NULL)
+	if ((env->table = ft_hashtable(25600, NULL)).data == NULL)
 		error(11, env, "failed to alocate the table of rooms\n");
 	return (0);
 }
@@ -98,8 +98,10 @@ inline static void	end(t_env_lem_in *env, char *line)
 	ft_free(line);
 	if (env->start == NULL)
 		error(16, env, "starting room is undefined\n");
-	if (env->start == NULL)
+	if (env->end == NULL)
 		error(15, env, "ending room is undefined\n");
+	if (env->nb_ant < 1)
+		error(18, env, "not ants\n");
 }
 
 inline void			parser(t_env_lem_in *e)
@@ -117,9 +119,9 @@ inline void			parser(t_env_lem_in *e)
 					(!ft_strcmp(line + 1, "#end") && ((mask |= END) & START)))
 				error(14, e, "command ##start and ##end next to each other\n");
 		}
-		else if ((t = ft_strchr(line, ' ')))
+		else if ((t = ft_strchr(line, ' ')) && t != line)
 			new_node(e, line, t, &mask);
-		else if ((t = ft_strchr(line, '-')))
+		else if ((t = ft_strchr(line, '-')) && t != line)
 			new_link(e, line, t);
 		else if (e->nb_ant || (e->nb_ant = ft_strtoll(line, &t, 0)) < 1 ||
 				line == t || *t != '\0')

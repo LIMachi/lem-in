@@ -6,7 +6,7 @@
 /*   By: hmartzol <hmartzol@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/21 18:44:31 by hmartzol          #+#    #+#             */
-/*   Updated: 2018/01/26 02:56:11 by hmartzol         ###   ########.fr       */
+/*   Updated: 2018/01/26 05:51:28 by hmartzol         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ typedef struct		s_path
 typedef struct		s_env_lem_in
 {
 	int				fd;
-	int				nb_ant;
+	long long		nb_ant;
 	int				verbose;
 	t_hashtable		table;
 	t_path			*path;
@@ -60,5 +60,6 @@ void				printer(t_env_lem_in *env);
 void				print_path_usage(t_env_lem_in *env);
 void				bfs(t_env_lem_in *env);
 void				error(int code, t_env_lem_in *env, char *format, ...);
+void				print_paths_found(t_env_lem_in *env);
 
 #endif
