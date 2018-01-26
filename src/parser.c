@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: hmartzol <hmartzol@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/01/25 04:10:31 by hmartzol          #+#    #+#             */
-/*   Updated: 2018/01/25 05:42:51 by hmartzol         ###   ########.fr       */
+/*   Created: 2018/01/25 04:01:31 by hmartzol          #+#    #+#             */
+/*   Updated: 2018/01/26 03:18:47 by hmartzol         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,97 +27,104 @@
 ** message d erreur "ERROR\n"
 */
 
-inline static void	new_node(t_env_lem_in *env, char *line, char *t,
-							int *last_line)
+inline static void	new_node(t_env_lem_in *e, char *l, char *t,
+							int *mask)
 {
 	t_room	*room;
 	int		x;
 	int		y;
 
 	*t++ = '\0';
-	if (ft_hashtable_get(&env->table, line))
-		exit(1 & ft_printf("ERROR\n"));
-	x = ft_strtoll(t, &t, 10);
+	if (ft_hashtable_get(&e->table, l))
+		error(1, e, "duplicate room name '%s'\n", l);
+	x = ft_strtoll(t, &t, 0);
 	if (*t++ != ' ' || (!ft_isdigit(*t) && *t != '-' && *t != '+'))
-		exit(2 & ft_printf("ERROR\n"));
-	y = ft_strtoll(t, &t, 10);
+		error(2, e, "invalid coordinates seperator for room '%s'\n", l);
+	y = ft_strtoll(t, &t, 0);
 	if (*t != '\n' && *t != '\0')
-		exit(3 & ft_printf("ERROR\n"));
+		error(3, e, "excess characters after coordinates for room '%s'\n", l);
 	if ((room = ft_malloc(sizeof(t_room))) == NULL)
-		exit(4 & ft_printf("ERROR\n"));
-	*room = (t_room){.flags = *last_line, .passes = 0, .x = x, .y = y, .links =
+		error(4, e, "failed to alocate memory for room '%s'\n", l);
+	*room = (t_room){.flags = *mask, .passes = 0, .x = x, .y = y, .links =
 		NULL};
-	*last_line = 0;
-	if (ft_hashtable_insert(&env->table, line, room, sizeof(t_room)) ==
+	if (ft_hashtable_insert(&e->table, l, room, sizeof(t_room)) ==
 			(size_t)-1)
-		exit(5 & ft_printf("ERROR\n"));
+		error(5, e, "failed to add room '%s' to the table\n", l);
+	if (*mask == START)
+		e->start = ft_hashtable_get(&e->table, l);
+	if (*mask == END)
+		e->end = ft_hashtable_get(&e->table, l);
+	*mask = 0;
 }
 
-inline static void	new_link(t_env_lem_in *env, char *line, char *t)
+inline static void	new_link(t_env_lem_in *e, char *l, char *t)
 {
 	t_llist	*r1;
 	t_llist	*r2;
 	t_link	*tmp;
 
 	*t++ = '\0';
-	if ((r1 = (t_llist*)ft_hashtable_get(&env->table, line)) == NULL)
-		exit(6 & ft_printf("ERROR\n"));
-	if ((r2 = (t_llist*)ft_hashtable_get(&env->table, t)) == NULL)
-		exit(7 & ft_printf("ERROR\n"));
+	if ((r1 = (t_llist*)ft_hashtable_get(&e->table, l)) == NULL)
+		error(6, e, "failed to locate room '%s' in the table\n", l);
+	if ((r2 = (t_llist*)ft_hashtable_get(&e->table, t)) == NULL)
+		error(7, e, "failed to locate room '%s' in the table\n", t);
+	if (r1 == r2)
+		error(17, e, "trying to link room '%s' to itself\n", l);
 	tmp = ((t_room*)r1->data)->links;
 	while (tmp && tmp->target != r2)
 		tmp = tmp->next;
 	if (tmp)
-		exit(8 & ft_printf("ERROR\n"));
+		error(8, e, "duplicate link between room '%s' and '%s'\n", l, t);
 	if ((tmp = ft_malloc(sizeof(t_link))) == NULL)
-		exit(9 & ft_printf("ERROR\n"));
+		error(9, e, "failed to alocate link between '%s' and '%s'\n", l, t);
 	*tmp = (t_link){.target = r2, .next = ((t_room*)r1->data)->links};
 	((t_room*)r1->data)->links = tmp;
 	if ((tmp = ft_malloc(sizeof(t_link))) == NULL)
-		exit(10 & ft_printf("ERROR\n"));
+		error(10, e, "failed to alocate link between '%s' and '%s'\n", t, l);
 	*tmp = (t_link){.target = r1, .next = ((t_room*)r2->data)->links};
 	((t_room*)r2->data)->links = tmp;
 }
 
-inline static void	init(t_env_lem_in *env, char **line)
+inline static int	init(t_env_lem_in *env, char **line)
 {
-	char	*t;
-
 	*line = NULL;
 	if ((env->table = ft_hashtable(256, NULL)).data == NULL)
-		exit(11 & ft_printf("ERROR\n"));
-	if (get_next_line(env->fd, line) > 0)
-		if ((env->nb_ant = ft_strtoll(*line, &t, 10)) < 1 || t == *line || *t)
-			exit(12 & ft_printf("ERROR\n"));
-	ft_memdel((void**)line);
+		error(11, env, "failed to alocate the table of rooms\n");
+	return (0);
 }
 
-void				parser(t_env_lem_in *env)
+inline static void	end(t_env_lem_in *env, char *line)
+{
+	ft_free(line);
+	if (env->start == NULL)
+		error(16, env, "starting room is undefined\n");
+	if (env->start == NULL)
+		error(15, env, "ending room is undefined\n");
+}
+
+inline void			parser(t_env_lem_in *e)
 {
 	char	*line;
 	char	*t;
-	int		last_line;
+	int		mask;
 
-	init(env, &line);
-	last_line = 0;
-	while (get_next_line(env->fd, &line) > 0)
+	mask = init(e, &line);
+	while (get_next_line(e->fd, &line) > 0 && *line != 'L' && *line != '\0')
 	{
-		if (*line == '\n')
-			continue ;
-		else if (*line == 'L' || *line == '\0')
-			break ;
-		else if (*line == '#')
-			if (!ft_strcmp(line + 1, "#start"))
-				last_line |= 1;
-			else
-				last_line |= 2 * !ft_strcmp(line + 1, "#end");
+		if (*line == '#')
+		{
+			if ((!ft_strcmp(line + 1, "#start") && ((mask |= START) & END)) ||
+					(!ft_strcmp(line + 1, "#end") && ((mask |= END) & START)))
+				error(14, e, "command ##start and ##end next to each other\n");
+		}
 		else if ((t = ft_strchr(line, ' ')))
-			new_node(env, line, t, &last_line);
+			new_node(e, line, t, &mask);
 		else if ((t = ft_strchr(line, '-')))
-			new_link(env, line, t);
-		else
-			exit(13 & ft_printf("ERROR\n"));
+			new_link(e, line, t);
+		else if (e->nb_ant || (e->nb_ant = ft_strtoll(line, &t, 0)) < 1 ||
+				line == t || *t != '\0')
+			error(13, e, "invalid line: '%s'\n", line);
 		ft_memdel((void**)&line);
 	}
-	ft_free(line);
+	end(e, line);
 }
