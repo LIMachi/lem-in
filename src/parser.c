@@ -6,7 +6,7 @@
 /*   By: hmartzol <hmartzol@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/25 04:01:31 by hmartzol          #+#    #+#             */
-/*   Updated: 2018/01/26 06:16:16 by hmartzol         ###   ########.fr       */
+/*   Updated: 2018/01/26 22:00:00 by hmartzol         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,8 @@ inline void			parser(t_env_lem_in *e)
 	mask = init(e, &line);
 	while (get_next_line(e->fd, &line) > 0 && *line != 'L' && *line != '\0')
 	{
+		if (!e->clean_output)
+			ft_printf("%s\n", line);
 		if (*line == '#')
 		{
 			if ((!ft_strcmp(line + 1, "#start") && ((mask |= START) & END)) ||

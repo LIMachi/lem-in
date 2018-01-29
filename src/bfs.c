@@ -6,19 +6,20 @@
 /*   By: hmartzol <hmartzol@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/26 01:27:37 by hmartzol          #+#    #+#             */
-/*   Updated: 2018/01/26 06:05:46 by hmartzol         ###   ########.fr       */
+/*   Updated: 2018/01/29 03:49:56 by hmartzol         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <lem_in.h>
 
-static int				recursive_fill(t_room *room, int depth)
+static size_t			recursive_fill(t_room *room, size_t depth)
 {
 	t_link	*tmp;
-	int		max_depth;
-	int		i;
+	size_t	max_depth;
+	size_t	i;
 
-	if (room == NULL || room->flags & (BLACKLIST | END) || room->passes)
+	if (room == NULL || room->flags & (BLACKLIST | END) ||
+			(room->passes && room->passes < depth + 1))
 		return (depth);
 	room->passes = ++depth;
 	max_depth = depth;
@@ -48,14 +49,15 @@ static inline void		clean_rooms(t_env_lem_in *env)
 			}
 }
 
-static inline t_llist	*initial_room(t_env_lem_in *env, int *d)
+static inline t_llist	*initial_room(t_env_lem_in *env, size_t *d)
 {
 	t_room	*tmp;
 	t_link	*link;
 	t_llist	*out;
 
 	clean_rooms(env);
-	*d = recursive_fill(env->start->data, 0);
+	if (!(*d = recursive_fill(env->start->data, 0)))
+		return (NULL);
 	link = ((t_room*)env->end->data)->links;
 	out = NULL;
 	while (link)
@@ -71,15 +73,13 @@ static inline t_llist	*initial_room(t_env_lem_in *env, int *d)
 	if (out)
 		((t_room*)out->data)->flags |= BLACKLIST;
 	if (!*d)
-		error(21, env, "no valid path from '%s' to '%s' was found\n",
-			env->start->label, env->end->label);
-	++*d;
+		return (NULL);
 	return (out);
 }
 
 static inline t_path	*extract_path(t_env_lem_in *env)
 {
-	int		d;
+	size_t	d;
 	t_llist	*room;
 	t_path	*out;
 	t_link	*link;
@@ -92,17 +92,17 @@ static inline t_path	*extract_path(t_env_lem_in *env)
 		error(20, env, "failed to alocate paths\n");
 	*out = (t_path){.length = d--, .labels = out->labels, .ants = out->ants,
 		.next = NULL};
-	out->labels[d - 1] = room->label;
-	while (--d > 1)
+	if (d > 0)
+		out->labels[d - 1] = room->label;
+	while ((long)--d > 0)
 	{
 		link = ((t_room*)room->data)->links;
-		while (link && ((t_room*)link->target->data)->passes != d)
+		while (link && ((t_room*)link->target->data)->passes != d + 1)
 			link = link->next;
 		out->labels[d - 1] = link->target->label;
 		room = link->target;
 		((t_room*)room->data)->flags |= BLACKLIST;
 	}
-	out->labels[0] = env->start->label;
 	return (out);
 }
 

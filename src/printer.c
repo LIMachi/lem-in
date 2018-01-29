@@ -6,7 +6,7 @@
 /*   By: hmartzol <hmartzol@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/25 05:26:54 by hmartzol          #+#    #+#             */
-/*   Updated: 2018/01/26 06:07:44 by hmartzol         ###   ########.fr       */
+/*   Updated: 2018/01/29 02:06:50 by hmartzol         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,7 @@ inline void			print_paths_found(t_env_lem_in *env)
 	while (path)
 	{
 		i = -1;
+		ft_printf("'%s'->", env->start->label);
 		while (++i < path->length - 1)
 			ft_printf("'%s'->", path->labels[i]);
 		ft_printf("'%s'\n", path->labels[i]);
@@ -80,7 +81,40 @@ inline void			print_paths_found(t_env_lem_in *env)
 ** ft_printf("L%d-%s", ant, room_label)
 */
 
+static inline int	update_path(long long ant, t_path *path)
+{
+	int			out;
+	size_t		i;
+
+	i = path->length;
+	out = 0;
+	while (--i)
+		if ((path->ants[i] = path->ants[i - 1]))
+		{
+			ft_printf("%sL%d-%s", &"\0 "[out], path->ants[i], path->labels[i]);
+			out = 1;
+		}
+	if ((path->ants[0] = ant))
+	{
+		ft_printf("%sL%d-%s", &"\0 "[out], ant, path->labels[0]);
+		out = 1;
+	}
+	return (out);
+}
+
 inline void			print_path_usage(t_env_lem_in *env)
 {
-	(void)env;
+	t_path		*path;
+	long long	waiting_ant;
+	int			run;
+
+	waiting_ant = 1;
+	run = 1;
+	while ((run || waiting_ant <= env->nb_ant) && (path = env->path))
+		while (path)
+			if ((run = update_path(waiting_ant <= env->nb_ant ?
+					waiting_ant++ : 0, path)))
+				ft_printf("%c", (path = path->next) ? ' ' : '\n');
+			else
+				path = path->next;
 }

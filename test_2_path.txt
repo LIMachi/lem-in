@@ -1,10 +1,11 @@
-42
+4
 ##start
 start 0 0
 ##end
 end 0 0
 0 0 0
 1 0 0
+#comment
 start-0
 start-1
 end-0

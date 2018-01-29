@@ -6,7 +6,7 @@
 /*   By: hmartzol <hmartzol@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/21 18:44:31 by hmartzol          #+#    #+#             */
-/*   Updated: 2018/01/26 05:51:28 by hmartzol         ###   ########.fr       */
+/*   Updated: 2018/01/29 03:34:20 by hmartzol         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ typedef struct		s_link
 typedef struct		s_room
 {
 	int				flags;
-	int				passes;
+	size_t			passes;
 	int				x;
 	int				y;
 	t_link			*links;
@@ -43,6 +43,8 @@ typedef struct		s_env_lem_in
 	int				fd;
 	long long		nb_ant;
 	int				verbose;
+	int				print_paths;
+	int				clean_output;
 	t_hashtable		table;
 	t_path			*path;
 	t_llist			*start;
