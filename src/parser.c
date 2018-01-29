@@ -6,7 +6,7 @@
 /*   By: hmartzol <hmartzol@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/25 04:01:31 by hmartzol          #+#    #+#             */
-/*   Updated: 2018/01/26 22:00:00 by hmartzol         ###   ########.fr       */
+/*   Updated: 2018/01/29 04:00:56 by hmartzol         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,15 @@ inline static void	new_node(t_env_lem_in *e, char *l, char *t,
 	*mask = 0;
 }
 
-inline static void	new_link(t_env_lem_in *e, char *l, char *t)
+inline static int	duplicate_link(t_env_lem_in *e, char *l, char *t)
+{
+	if (e->ignore_double_link)
+		return (0);
+	error(8, e, "duplicate link between room '%s' and '%s'\n", l, t);
+	return (0);
+}
+
+inline static int	new_link(t_env_lem_in *e, char *l, char *t)
 {
 	t_llist	*r1;
 	t_llist	*r2;
@@ -74,7 +82,7 @@ inline static void	new_link(t_env_lem_in *e, char *l, char *t)
 	while (tmp && tmp->target != r2)
 		tmp = tmp->next;
 	if (tmp)
-		error(8, e, "duplicate link between room '%s' and '%s'\n", l, t);
+		return (duplicate_link(e, l, t));
 	if ((tmp = ft_malloc(sizeof(t_link))) == NULL)
 		error(9, e, "failed to alocate link between '%s' and '%s'\n", l, t);
 	*tmp = (t_link){.target = r2, .next = ((t_room*)r1->data)->links};
@@ -83,13 +91,6 @@ inline static void	new_link(t_env_lem_in *e, char *l, char *t)
 		error(10, e, "failed to alocate link between '%s' and '%s'\n", t, l);
 	*tmp = (t_link){.target = r1, .next = ((t_room*)r2->data)->links};
 	((t_room*)r2->data)->links = tmp;
-}
-
-inline static int	init(t_env_lem_in *env, char **line)
-{
-	*line = NULL;
-	if ((env->table = ft_hashtable(25600, NULL)).data == NULL)
-		error(11, env, "failed to alocate the table of rooms\n");
 	return (0);
 }
 
@@ -104,13 +105,10 @@ inline static void	end(t_env_lem_in *env, char *line)
 		error(18, env, "not ants\n");
 }
 
-inline void			parser(t_env_lem_in *e)
+inline void			parser(t_env_lem_in *e, int mask, char *line)
 {
-	char	*line;
 	char	*t;
-	int		mask;
 
-	mask = init(e, &line);
 	while (get_next_line(e->fd, &line) > 0 && *line != 'L' && *line != '\0')
 	{
 		if (!e->clean_output)

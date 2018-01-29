@@ -6,7 +6,7 @@
 /*   By: hmartzol <hmartzol@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/21 18:44:31 by hmartzol          #+#    #+#             */
-/*   Updated: 2018/01/29 03:34:20 by hmartzol         ###   ########.fr       */
+/*   Updated: 2018/01/29 03:57:17 by hmartzol         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ typedef struct		s_env_lem_in
 	int				verbose;
 	int				print_paths;
 	int				clean_output;
+	int				ignore_double_link;
 	t_hashtable		table;
 	t_path			*path;
 	t_llist			*start;
@@ -56,7 +57,7 @@ typedef struct		s_env_lem_in
 # define BLACKLIST	4
 # define PRINTER	8
 
-void				parser(t_env_lem_in *env);
+void				parser(t_env_lem_in *env, int mask, char *line);
 void				debug(t_env_lem_in *env);
 void				printer(t_env_lem_in *env);
 void				print_path_usage(t_env_lem_in *env);
