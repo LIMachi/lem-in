@@ -6,7 +6,7 @@
 /*   By: hmartzol <hmartzol@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/25 04:01:31 by hmartzol          #+#    #+#             */
-/*   Updated: 2018/01/29 04:00:56 by hmartzol         ###   ########.fr       */
+/*   Updated: 2018/01/29 04:49:54 by hmartzol         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,14 +105,16 @@ inline static void	end(t_env_lem_in *env, char *line)
 		error(18, env, "not ants\n");
 }
 
-inline void			parser(t_env_lem_in *e, int mask, char *line)
+inline char			*parser(t_env_lem_in *e, int mask, char *line)
 {
 	char	*t;
+	char	*file;
 
+	file = NULL;
 	while (get_next_line(e->fd, &line) > 0 && *line != 'L' && *line != '\0')
 	{
 		if (!e->clean_output)
-			ft_printf("%s\n", line);
+			file = ft_strgcat(3, file, 1, line, 0, "\n", 0);
 		if (*line == '#')
 		{
 			if ((!ft_strcmp(line + 1, "#start") && ((mask |= START) & END)) ||
@@ -129,4 +131,5 @@ inline void			parser(t_env_lem_in *e, int mask, char *line)
 		ft_memdel((void**)&line);
 	}
 	end(e, line);
+	return (file);
 }

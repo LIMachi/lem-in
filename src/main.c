@@ -6,7 +6,7 @@
 /*   By: hmartzol <hmartzol@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/21 18:44:54 by hmartzol          #+#    #+#             */
-/*   Updated: 2018/01/29 04:00:28 by hmartzol         ###   ########.fr       */
+/*   Updated: 2018/01/29 04:52:40 by hmartzol         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ inline static void	read_opts(int argc, char **argv, t_env_lem_in *e)
 
 int					main(int argc, char **argv)
 {
+	char				*p;
 	static t_env_lem_in	env = {.fd = 0, .nb_ant = 0, .verbose = 0, .end = NULL,
 
 	.print_paths = 0, .table = {0, 0, 0}, .path = NULL, .start = NULL,
@@ -61,10 +62,15 @@ int					main(int argc, char **argv)
 	read_opts(argc, argv, &env);
 	if ((env.table = ft_hashtable(25600, NULL)).data == NULL)
 		error(11, &env, "failed to alocate the table of rooms\n");
-	parser(&env, 0, NULL);
-	bfs(&env);
+	p = parser(&env, 0, NULL);
 	if (env.clean_output)
 		printer(&env);
+	else
+	{
+		ft_printf("%s\n", p);
+		ft_free(p);
+	}
+	bfs(&env);
 	if (env.print_paths)
 		print_paths_found(&env);
 	print_path_usage(&env);
