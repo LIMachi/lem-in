@@ -6,7 +6,7 @@
 /*   By: hmartzol <hmartzol@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/25 05:26:54 by hmartzol          #+#    #+#             */
-/*   Updated: 2018/01/29 04:55:36 by hmartzol         ###   ########.fr       */
+/*   Updated: 2018/01/30 06:11:29 by hmartzol         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,9 +111,10 @@ inline void			print_path_usage(t_env_lem_in *env)
 
 	waiting_ant = 1;
 	run = 1;
-	while ((run || waiting_ant <= env->nb_ant) && (path = env->path))
+	while ((run || waiting_ant <= env->nb_ant) && (path = env->path) &&
+			!(run = 0))
 		while (path)
-			if ((run = update_path(waiting_ant <= env->nb_ant ?
+			if ((run |= update_path(waiting_ant <= env->nb_ant ?
 					waiting_ant++ : 0, path)))
 				ft_printf("%c", (path = path->next) ? ' ' : '\n');
 			else
