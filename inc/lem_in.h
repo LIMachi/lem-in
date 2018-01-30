@@ -6,7 +6,7 @@
 /*   By: hmartzol <hmartzol@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/21 18:44:31 by hmartzol          #+#    #+#             */
-/*   Updated: 2018/01/29 04:53:10 by hmartzol         ###   ########.fr       */
+/*   Updated: 2018/01/30 06:17:49 by hmartzol         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ typedef struct		s_env_lem_in
 	int				print_paths;
 	int				clean_output;
 	int				ignore_double_link;
+	int				debug;
 	t_hashtable		table;
 	t_path			*path;
 	t_llist			*start;

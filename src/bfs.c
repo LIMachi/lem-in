@@ -6,7 +6,7 @@
 /*   By: hmartzol <hmartzol@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/26 01:27:37 by hmartzol          #+#    #+#             */
-/*   Updated: 2018/01/29 03:49:56 by hmartzol         ###   ########.fr       */
+/*   Updated: 2018/01/30 06:18:34 by hmartzol         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,6 +115,8 @@ inline void				bfs(t_env_lem_in *env)
 		path->next = env->path;
 		path->labels[path->length - 1] = env->end->label;
 		env->path = path;
+		if (env->debug)
+			debug(env);
 	}
 	if (!env->path)
 		error(21, env, "no valid path from '%s' to '%s' was found\n",
